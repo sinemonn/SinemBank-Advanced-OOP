@@ -1,5 +1,3 @@
-# Auto detect text files and perform LF normalization
-* text=auto
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List

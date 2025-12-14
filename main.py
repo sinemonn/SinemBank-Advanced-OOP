@@ -1,4 +1,4 @@
-from banking_modules import *
+from banking_modules import Account, get_exchange_rates
 if __name__ == "__main__":
     # 1. Banka Kurulumu
     my_bank = Bank("Python Bank")

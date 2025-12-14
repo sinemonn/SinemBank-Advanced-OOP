@@ -1,10 +1,12 @@
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import List
+from dataclasses import dataclass, field
+from typing import List, Optional
+from datetime import datetime
+import json
+import urllib.request
 
-# ================================
-# 1. VALUE OBJECTS (IMMUTABILITY)
-# ================================
+# ==========================================
+# 1. MONEY CLASS
+# ==========================================
 
 @dataclass(frozen=True)
 class Money:
@@ -12,104 +14,122 @@ class Money:
     amount: float
     currency: str = "TRY"
 
-    def _str_(self):
+    def __str__(self):
         return f"{self.amount:.2f} {self.currency}"
-    
-    def _add_(self, other):
+
+    def __add__(self, other):
         if isinstance(other, Money) and self.currency == other.currency:
             return Money(self.amount + other.amount, self.currency)
         raise ValueError("Para birimleri eşleşmiyor veya geçersiz işlem.")
 
+    def __sub__(self, other):
+        if isinstance(other, Money) and self.currency == other.currency:
+            return Money(self.amount - other.amount, self.currency)
+        raise ValueError("Para birimleri eşleşmiyor veya geçersiz işlem.")
+
+# ==========================================
+# 2. TRANSACTION CLASS
+# ==========================================
+
 @dataclass(frozen=True)
 class Transaction:
-    """Değiştirilemez işlem kaydı."""
-    amount: Money
+    """Her bir işlemi (yatırma/çekme) kayıt altına alan sınıf."""
     description: str
-    transaction_type: str  # 'CR' (Credit/Yatırılan) veya 'DR' (Debit/Çekilen)
+    amount: Money
+    date: datetime = field(default_factory=datetime.now)
 
-# ================================
-# 2. ABSTRACTION (AbstractAccount)
-# ================================
+    def __str__(self):
+        return f"[{self.date.strftime('%Y-%m-%d %H:%M')}] {self.description}: {self.amount}"
 
-class AbstractAccount(ABC):
-    """Hesap işlemleri için Soyut Temel Sınıf (Abstract Base Class)."""
+# ==========================================
+# 3. ACCOUNT CLASS
+# ==========================================
 
-    def _init_(self, acc_no: str):
-        self.acc_no = acc_no
-        self._balance = Money(0.0)
-        self._transactions: List[Transaction] = []
+class Account:
+    """Banka hesabını yöneten ana sınıf."""
+    def __init__(self, owner: str, currency: str = "TRY"):
+        self.owner = owner
+        self.currency = currency
+        self.__balance = Money(0.0, currency) 
+        self.__transaction_history: List[Transaction] = []
 
-    @property
-    def balance(self):
-        return self._balance
-
-    def deposit(self, amount: float):
+    def deposit(self, amount: float, description: str = "Para Yatırma"):
         if amount <= 0:
-            raise ValueError("Yatırılacak tutar pozitif olmalı.")
+            print("Hata: Tutar pozitif olmalı.")
+            return
         
-        # Money objesi immutable olduğu için yeni bir obje oluşturuyoruz
-        deposit_money = Money(amount)
-        self._balance = self._balance + deposit_money
+        money_obj = Money(amount, self.currency)
+        self.__balance = self.__balance + money_obj
         
-        # İşlemi geçmişe ekle
-        self._transactions.append(Transaction(deposit_money, "Para Yatırma", "CR"))
-        print(f"[{self.acc_no}] Hesabına {deposit_money} yatırıldı.")
+        transaction = Transaction(description=description, amount=money_obj)
+        self.__transaction_history.append(transaction)
+        print(f"✅ {amount} {self.currency} yatırıldı. Yeni Bakiye: {self.__balance}")
 
-    @abstractmethod
-    def calculate_interest(self):
-        pass
+    def withdraw(self, amount: float, description: str = "Para Çekme"):
+        if amount <= 0:
+            print("Hata: Tutar pozitif olmalı.")
+            return
 
-    def _str_(self):
-        return f"Hesap No: {self.acc_no} | Bakiye: {self._balance}"
+        if self.__balance.amount < amount:
+            print(f"❌ Hata: Yetersiz bakiye! Mevcut: {self.__balance}")
+            return
 
-# ================================
-# 3. CONCRETE CLASSES
-# ================================
+        money_obj = Money(amount, self.currency)
+        self.__balance = self.__balance - money_obj
 
-class Account(AbstractAccount):
-    """Vadesiz Hesap Sınıfı."""
-    def calculate_interest(self):
-        return Money(0.0) # Vadesiz hesapta faiz yok
+        # Algoritma için negatif tutarlı kayıt
+        transaction = Transaction(description=description, amount=Money(-amount, self.currency))
+        self.__transaction_history.append(transaction)
+        print(f"✅ {amount} {self.currency} çekildi. Yeni Bakiye: {self.__balance}")
 
-class SavingsAccount(AbstractAccount):
-    """Vadeli Hesap Sınıfı."""
-    interest_rate = 0.05
+    def show_history(self):
+        print(f"\n--- {self.owner} Hesap Özeti ---")
+        for t in self.__transaction_history:
+            print(t)
+        print(f"SON BAKİYE: {self.__balance}\n")
 
-    def calculate_interest(self):
-        interest_amount = self._balance.amount * self.interest_rate
-        return Money(interest_amount)
+    # --- İSTENEN ALGORİTMALAR ---
 
-# ================================
-# 4. CUSTOMER & BANK SYSTEM
-# ================================
+    def search_transactions(self, keyword: str):
+        print(f"\n🔍 Arama Sonuçları: '{keyword}'")
+        results = [t for t in self.__transaction_history if keyword.lower() in t.description.lower()]
+        if not results:
+            print("Sonuç bulunamadı.")
+        for t in results:
+            print(t)
 
-class Customer:
-    def _init_(self, name: str, tax_id: str):
-        self.name = name
-        self.tax_id = tax_id
-        self.accounts: List[AbstractAccount] = []
+    def calculate_balance_from_history(self):
+        """Geçmiş işlemleri döngü ile (iteration) toplayarak bakiye hesaplar."""
+        print("\n🔄 Algoritma: Bakiye yeniden hesaplanıyor...")
+        total = 0.0
+        for t in self.__transaction_history:
+            total += t.amount.amount
+        print(f"Doğrulanan Bakiye: {total:.2f} {self.currency}")
+        return Money(total, self.currency)
 
-    def add_account(self, account: AbstractAccount):
-        self.accounts.append(account)
+# ==========================================
+# 4. WEB'DEN VERİ ÇEKME
+# ==========================================
 
-    def _str_(self):
-        return f"Müşteri: {self.name} (ID: {self.tax_id})"
+def get_exchange_rates():
+    """Gerçek zamanlı veri çeker. İnternet yoksa yedek veriyi kullanır."""
+    print("\n🌍 Web'den Döviz Kurları Çekiliyor...")
+    
+    url = "https://api.exchangerate-api.com/v4/latest/TRY"
+    
+    try:
+        response = urllib.request.urlopen(url)
+        data = json.loads(response.read())
+        
+        rates = {
+            "USD": 1 / data['rates']['USD'],
+            "EUR": 1 / data['rates']['EUR'],
+            "GBP": 1 / data['rates']['GBP']
+        }
+        print("✅ Bağlantı Başarılı! Güncel kurlar alındı.")
+        return rates
 
-class Bank:
-    """Bankacılık sistemini yöneten ana sınıf."""
-    def _init_(self, name: str):
-        self.name = name
-        self.customers: List[Customer] = []
-
-    def add_customer(self, customer: Customer):
-        self.customers.append(customer)
-        print(f"SİSTEM: {customer.name} bankaya müşteri olarak eklendi.")
-
-    def list_customers(self):
-        print(f"\n--- {self.name} MÜŞTERİ RAPORU ---")
-        for cust in self.customers:
-            print(f"- {cust}")
-            for acc in cust.accounts:
-                print(f"    -> {acc}")
-        print("----------------------------------\n")
-
+    except Exception as e:
+        print(f"⚠️ Web hatası: {e}")
+        print("⚠️ Yedek (Offline) kurlar kullanılıyor.")
+        return {"USD": 34.50, "EUR": 36.20, "GBP": 42.10}

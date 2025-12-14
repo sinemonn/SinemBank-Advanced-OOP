@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 from datetime import datetime
 import json
-import urllib.request # Web'den veri çekmek için eklendi
+import urllib.request
 
 # ==========================================
 # 1. MONEY CLASS
@@ -108,27 +108,21 @@ class Account:
         return Money(total, self.currency)
 
 # ==========================================
-# 4. WEB'DEN VERİ ÇEKME (Artık Gerçek!)
+# 4. WEB'DEN VERİ ÇEKME
 # ==========================================
 
 def get_exchange_rates():
-    """
-    GEREKSİNİM: Collect foreign currency exchange rates from related web sites.
-    Gerçek zamanlı veri çeker. İnternet yoksa yedek veriyi kullanır.
-    """
+    """Gerçek zamanlı veri çeker. İnternet yoksa yedek veriyi kullanır."""
     print("\n🌍 Web'den Döviz Kurları Çekiliyor...")
     
-    # Bu ücretsiz bir API adresidir (Üyelik gerektirmez)
     url = "https://api.exchangerate-api.com/v4/latest/TRY"
     
     try:
-        # İnternetten veri çekme isteği (Request)
         response = urllib.request.urlopen(url)
         data = json.loads(response.read())
         
-        # Sadece bizim işimize yarayanları filtreleyelim
         rates = {
-            "USD": 1 / data['rates']['USD'], # TRY bazlı dönüşüm
+            "USD": 1 / data['rates']['USD'],
             "EUR": 1 / data['rates']['EUR'],
             "GBP": 1 / data['rates']['GBP']
         }
@@ -136,7 +130,6 @@ def get_exchange_rates():
         return rates
 
     except Exception as e:
-        # İnternet yoksa veya site çökmüşse burası çalışır
         print(f"⚠️ Web hatası: {e}")
         print("⚠️ Yedek (Offline) kurlar kullanılıyor.")
         return {"USD": 34.50, "EUR": 36.20, "GBP": 42.10}

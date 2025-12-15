@@ -10,7 +10,7 @@ import urllib.request
 
 @dataclass(frozen=True)
 class Money:
-    """Para birimi ve tutarı tutan, değiştirilemez (Immutable) sınıf."""
+    """Immutable class to store currency and amount."""
     amount: float
     currency: str = "TRY"
 
@@ -20,12 +20,12 @@ class Money:
     def __add__(self, other):
         if isinstance(other, Money) and self.currency == other.currency:
             return Money(self.amount + other.amount, self.currency)
-        raise ValueError("Para birimleri eşleşmiyor veya geçersiz işlem.")
+        raise ValueError("Currency mismatch or invalid operation.")
 
     def __sub__(self, other):
         if isinstance(other, Money) and self.currency == other.currency:
             return Money(self.amount - other.amount, self.currency)
-        raise ValueError("Para birimleri eşleşmiyor veya geçersiz işlem.")
+        raise ValueError("Currency mismatch or invalid operation.")
 
 # ==========================================
 # 2. TRANSACTION CLASS
@@ -33,7 +33,7 @@ class Money:
 
 @dataclass(frozen=True)
 class Transaction:
-    """Her bir işlemi (yatırma/çekme) kayıt altına alan sınıf."""
+    """Records individual transactions (deposit/withdrawal)."""
     description: str
     amount: Money
     date: datetime = field(default_factory=datetime.now)
@@ -46,16 +46,16 @@ class Transaction:
 # ==========================================
 
 class Account:
-    """Banka hesabını yöneten ana sınıf."""
+    """Main class to manage bank accounts."""
     def __init__(self, owner: str, currency: str = "TRY"):
         self.owner = owner
         self.currency = currency
         self.__balance = Money(0.0, currency) 
         self.__transaction_history: List[Transaction] = []
 
-    def deposit(self, amount: float, description: str = "Para Yatırma"):
+    def deposit(self, amount: float, description: str = "Deposit"):
         if amount <= 0:
-            print("Hata: Tutar pozitif olmalı.")
+            print("Error: Amount must be positive.")
             return
         
         money_obj = Money(amount, self.currency)
@@ -63,57 +63,57 @@ class Account:
         
         transaction = Transaction(description=description, amount=money_obj)
         self.__transaction_history.append(transaction)
-        print(f"✅ {amount} {self.currency} yatırıldı. Yeni Bakiye: {self.__balance}")
+        print(f"✅ {amount} {self.currency} deposited. New Balance: {self.__balance}")
 
-    def withdraw(self, amount: float, description: str = "Para Çekme"):
+    def withdraw(self, amount: float, description: str = "Withdrawal"):
         if amount <= 0:
-            print("Hata: Tutar pozitif olmalı.")
+            print("Error: Amount must be positive.")
             return
 
         if self.__balance.amount < amount:
-            print(f"❌ Hata: Yetersiz bakiye! Mevcut: {self.__balance}")
+            print(f"❌ Error: Insufficient funds! Current: {self.__balance}")
             return
 
         money_obj = Money(amount, self.currency)
         self.__balance = self.__balance - money_obj
 
-        # Algoritma için negatif tutarlı kayıt
+        # Negative amount for logic consistency
         transaction = Transaction(description=description, amount=Money(-amount, self.currency))
         self.__transaction_history.append(transaction)
-        print(f"✅ {amount} {self.currency} çekildi. Yeni Bakiye: {self.__balance}")
+        print(f"✅ {amount} {self.currency} withdrawn. New Balance: {self.__balance}")
 
     def show_history(self):
-        print(f"\n--- {self.owner} Hesap Özeti ---")
+        print(f"\n--- Account Statement: {self.owner} ---")
         for t in self.__transaction_history:
             print(t)
-        print(f"SON BAKİYE: {self.__balance}\n")
+        print(f"FINAL BALANCE: {self.__balance}\n")
 
-    # --- İSTENEN ALGORİTMALAR ---
+    # --- REQUIRED ALGORITHMS ---
 
     def search_transactions(self, keyword: str):
-        print(f"\n🔍 Arama Sonuçları: '{keyword}'")
+        print(f"\n🔍 Search Results: '{keyword}'")
         results = [t for t in self.__transaction_history if keyword.lower() in t.description.lower()]
         if not results:
-            print("Sonuç bulunamadı.")
+            print("No results found.")
         for t in results:
             print(t)
 
     def calculate_balance_from_history(self):
-        """Geçmiş işlemleri döngü ile (iteration) toplayarak bakiye hesaplar."""
-        print("\n🔄 Algoritma: Bakiye yeniden hesaplanıyor...")
+        """Calculates balance by iterating through history."""
+        print("\n🔄 Algorithm: Recalculating balance from history...")
         total = 0.0
         for t in self.__transaction_history:
             total += t.amount.amount
-        print(f"Doğrulanan Bakiye: {total:.2f} {self.currency}")
+        print(f"Verified Balance: {total:.2f} {self.currency}")
         return Money(total, self.currency)
 
 # ==========================================
-# 4. WEB'DEN VERİ ÇEKME
+# 4. WEB DATA FETCHING
 # ==========================================
 
 def get_exchange_rates():
-    """Gerçek zamanlı veri çeker. İnternet yoksa yedek veriyi kullanır."""
-    print("\n🌍 Web'den Döviz Kurları Çekiliyor...")
+    """Fetches real-time data. Uses backup if offline."""
+    print("\n🌍 Fetching Exchange Rates from Web...")
     
     url = "https://api.exchangerate-api.com/v4/latest/TRY"
     
@@ -126,10 +126,10 @@ def get_exchange_rates():
             "EUR": 1 / data['rates']['EUR'],
             "GBP": 1 / data['rates']['GBP']
         }
-        print("✅ Bağlantı Başarılı! Güncel kurlar alındı.")
+        print("✅ Connection Successful! Rates updated.")
         return rates
 
     except Exception as e:
-        print(f"⚠️ Web hatası: {e}")
-        print("⚠️ Yedek (Offline) kurlar kullanılıyor.")
+        print(f"⚠️ Web error: {e}")
+        print("⚠️ Using backup (offline) rates.")
         return {"USD": 34.50, "EUR": 36.20, "GBP": 42.10}

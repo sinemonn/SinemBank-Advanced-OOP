@@ -1,31 +1,33 @@
 from banking_modules import Account, get_exchange_rates
 
 if __name__ == "__main__":
-    print("--- 🏦 BANKA SİSTEMİ TESTİ BAŞLIYOR ---")
+    print("--- 🏦 BANK SYSTEM TEST STARTING ---")
 
-    # 1. Hesap Oluşturma (Sadece Account sınıfımız var)
+    # 1. Create Account
     my_account = Account(owner="Sinem Onar", currency="TRY")
 
-    # 2. Para Yatırma İşlemleri
-    my_account.deposit(1000, "Maas Yatis")
-    my_account.deposit(500, "Ek Gelir")
+    # 2. Deposit Operations
+    my_account.deposit(1000, "Salary Deposit")
+    my_account.deposit(500, "Extra Income")
 
-    # 3. Para Çekme İşlemi
-    my_account.withdraw(200, "Market Alisverisi")
+    # 3. Withdrawal Operation
+    my_account.withdraw(200, "Grocery Shopping")
 
-    # 4. Hata Testi (Yetersiz Bakiye)
-    my_account.withdraw(5000, "Araba Alimi")
+    # 4. Error Test (Insufficient Funds)
+    my_account.withdraw(5000, "Car Purchase")
 
-    # 5. Hesap Geçmişini Göster
+    # 5. Show History
     my_account.show_history()
 
-    # 6. Algoritma 1: İşlem Arama
-    print("\n--- 🔍 Arama Testi ---")
-    my_account.search_transactions("Market")
+    # 6. Algorithm 1: Search
+    print("\n--- 🔍 Search Test ---")
+    my_account.search_transactions("Grocery")
 
-    # 7. Algoritma 2: Bakiye Doğrulama (Döngü ile)
+    # 7. Algorithm 2: Balance Verification
     my_account.calculate_balance_from_history()
 
-    # 8. Algoritma 3: Web'den Veri Çekme
-    print("\n--- 🌍 Döviz Kuru Testi ---")
+    # 8. Algorithm 3: Web Data
+    print("\n--- 🌍 Exchange Rate Test ---")
     get_exchange_rates()
+
+

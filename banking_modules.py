@@ -1,135 +1,125 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Dict
 from datetime import datetime
 import json
-import urllib.request
+import os
 
 # ==========================================
-# 1. MONEY CLASS
+# 1. CUSTOM EXCEPTIONS
 # ==========================================
+class InsufficientFundsError(Exception):
+    """Exception raised for errors in the withdrawal process due to low balance."""
+    pass
 
+# ==========================================
+# 2. DATA MODELS (IMMUTABILITY)
+# ==========================================
 @dataclass(frozen=True)
 class Money:
-    """Immutable class to store currency and amount."""
+    """Value object for immutable currency operations."""
     amount: float
     currency: str = "TRY"
-
-    def __str__(self):
-        return f"{self.amount:.2f} {self.currency}"
-
+    
     def __add__(self, other):
         if isinstance(other, Money) and self.currency == other.currency:
             return Money(self.amount + other.amount, self.currency)
-        raise ValueError("Currency mismatch or invalid operation.")
+        raise ValueError("Currency mismatch during addition.")
 
-    def __sub__(self, other):
-        if isinstance(other, Money) and self.currency == other.currency:
-            return Money(self.amount - other.amount, self.currency)
-        raise ValueError("Currency mismatch or invalid operation.")
-
-# ==========================================
-# 2. TRANSACTION CLASS
-# ==========================================
-
-@dataclass(frozen=True)
+@dataclass
 class Transaction:
-    """Records individual transactions (deposit/withdrawal)."""
+    """Model for tracking account transaction history."""
     description: str
-    amount: Money
-    date: datetime = field(default_factory=datetime.now)
-
-    def __str__(self):
-        return f"[{self.date.strftime('%Y-%m-%d %H:%M')}] {self.description}: {self.amount}"
+    amount: float
+    date: str = field(default_factory=lambda: datetime.now().strftime('%Y-%m-%d %H:%M'))
 
 # ==========================================
-# 3. ACCOUNT CLASS
+# 3. ACCOUNT HIERARCHY
 # ==========================================
-
 class Account:
-    """Main class to manage bank accounts."""
+    """Base class for banking accounts applying encapsulation principles."""
     def __init__(self, owner: str, currency: str = "TRY"):
         self.owner = owner
         self.currency = currency
-        self.__balance = Money(0.0, currency) 
-        self.__transaction_history: List[Transaction] = []
+        self._balance = 0.0 
+        self._transaction_history: List[Transaction] = []
 
     def deposit(self, amount: float, description: str = "Deposit"):
-        if amount <= 0:
-            print("Error: Amount must be positive.")
-            return
-        
-        money_obj = Money(amount, self.currency)
-        self.__balance = self.__balance + money_obj
-        
-        transaction = Transaction(description=description, amount=money_obj)
-        self.__transaction_history.append(transaction)
-        print(f"✅ {amount} {self.currency} deposited. New Balance: {self.__balance}")
+        if amount <= 0: return
+        self._balance += amount
+        self._transaction_history.append(Transaction(description, amount))
 
     def withdraw(self, amount: float, description: str = "Withdrawal"):
-        if amount <= 0:
-            print("Error: Amount must be positive.")
-            return
+        if amount > 10000: 
+            print(f"REPORT: High-value transaction alert for account: {self.owner}")
 
-        if self.__balance.amount < amount:
-            print(f"❌ Error: Insufficient funds! Current: {self.__balance}")
-            return
-
-        money_obj = Money(amount, self.currency)
-        self.__balance = self.__balance - money_obj
-
-        # Negative amount for logic consistency
-        transaction = Transaction(description=description, amount=Money(-amount, self.currency))
-        self.__transaction_history.append(transaction)
-        print(f"✅ {amount} {self.currency} withdrawn. New Balance: {self.__balance}")
-
-    def show_history(self):
-        print(f"\n--- Account Statement: {self.owner} ---")
-        for t in self.__transaction_history:
-            print(t)
-        print(f"FINAL BALANCE: {self.__balance}\n")
-
-    # --- REQUIRED ALGORITHMS ---
-
-    def search_transactions(self, keyword: str):
-        print(f"\n🔍 Search Results: '{keyword}'")
-        results = [t for t in self.__transaction_history if keyword.lower() in t.description.lower()]
-        if not results:
-            print("No results found.")
-        for t in results:
-            print(t)
-
-    def calculate_balance_from_history(self):
-        """Calculates balance by iterating through history."""
-        print("\n🔄 Algorithm: Recalculating balance from history...")
-        total = 0.0
-        for t in self.__transaction_history:
-            total += t.amount.amount
-        print(f"Verified Balance: {total:.2f} {self.currency}")
-        return Money(total, self.currency)
-
-# ==========================================
-# 4. WEB DATA FETCHING
-# ==========================================
-
-def get_exchange_rates():
-    """Fetches real-time data. Uses backup if offline."""
-    print("\n🌍 Fetching Exchange Rates from Web...")
-    
-    url = "https://api.exchangerate-api.com/v4/latest/TRY"
-    
-    try:
-        response = urllib.request.urlopen(url)
-        data = json.loads(response.read())
+        if amount > self._balance:
+            raise InsufficientFundsError(f"Current balance {self._balance} is insufficient.")
         
-        rates = {
-            "USD": 1 / data['rates']['USD'],
-            "EUR": 1 / data['rates']['EUR'],
-            "GBP": 1 / data['rates']['GBP']
-        }
-        print("✅ Connection Successful! Rates updated.")
-        return rates
+        self._balance -= amount
+        self._transaction_history.append(Transaction(description, -amount))
 
-    except Exception as e:
-        print(f"⚠️ Web error: {e}")
-        print("⚠️ Using backup (offline) rates.")
-        return {"USD": 34.50, "EUR": 36.20, "GBP": 42.10}
+    def __str__(self):
+        return f"Account Owner: {self.owner} | Balance: {self._balance:.2f} {self.currency}"
+
+class SavingsAccount(Account):
+    """Subclass implementing specialized interest computation algorithms."""
+    def __init__(self, owner: str, interest_rate: float = 0.15):
+        super().__init__(owner)
+        self.interest_rate = interest_rate
+
+    def calculate_interest(self):
+        """Calculates interest and returns it as a Money object."""
+        interest_value = self._balance * self.interest_rate
+        return Money(interest_value)
+
+    def apply_interest(self):
+        """Applies interest to the balance."""
+        interest_obj = self.calculate_interest()
+        self.deposit(interest_obj.amount, "Accrued Interest Income")
+
+class CheckingAccount(Account):
+    """Subclass with transaction limits."""
+    def withdraw(self, amount: float, description: str = "Withdrawal"):
+        if amount > 5000: 
+            print("SECURITY: Transaction rejected. Amount exceeds standard limit.")
+            return
+        super().withdraw(amount, description)
+
+# ==========================================
+# 4. CUSTOMER CLASS (MISSING PIECE!)
+# ==========================================
+class Customer:
+    """Class representing a bank customer and their linked accounts."""
+    def __init__(self, name: str, tax_id: str):
+        self.name = name
+        self.tax_id = tax_id
+        self.accounts: List[Account] = []
+
+    def add_account(self, account: Account):
+        self.accounts.append(account)
+
+    def __str__(self):
+        return f"Customer: {self.name} (ID: {self.tax_id})"
+
+# ==========================================
+# 5. SYSTEM MANAGEMENT (Persistence & Analytics)
+# ==========================================
+class BankSystem:
+    """Core system for data persistence and reporting analytics."""
+    def __init__(self, data_file="bank_data.json"):
+        self.data_file = data_file
+        self.accounts: List[Account] = []
+
+    def save_data(self):
+        serialized_data = []
+        for acc in self.accounts:
+            serialized_data.append({
+                "owner": acc.owner,
+                "balance": acc._balance,
+                "history": [t.__dict__ for t in acc._transaction_history]
+            })
+        with open(self.data_file, "w") as f:
+            json.dump(serialized_data, f, indent=4)
+
+    def get_top_performing_accounts(self, count=3):
+        return sorted(self.accounts, key=lambda x: x._balance, reverse=True)[:count]

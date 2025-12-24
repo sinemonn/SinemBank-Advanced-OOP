@@ -1,0 +1,29 @@
+[
+    {
+        "owner": "TR-CHECKING-01",
+        "balance": 1000.0,
+        "history": [
+            {
+                "description": "Initial Deposit",
+                "amount": 1000,
+                "date": "2025-12-24 14:10"
+            }
+        ]
+    },
+    {
+        "owner": "TR-SAVINGS-02",
+        "balance": 5750.0,
+        "history": [
+            {
+                "description": "Savings Startup",
+                "amount": 5000,
+                "date": "2025-12-24 14:10"
+            },
+            {
+                "description": "Accrued Interest Income",
+                "amount": 750.0,
+                "date": "2025-12-24 14:10"
+            }
+        ]
+    }
+]

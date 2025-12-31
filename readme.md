@@ -1,32 +1,30 @@
-# 🏦 Banking and Payment System - Stage 3 Application
+# Esenyurt Bank - Advanced Banking Management System 🏦
 
-This project is an advanced banking simulation system developed as part of the **Software Engineering** curriculum at **Istanbul Esenyurt University**. It implements robust architectural patterns and data analytics, fulfilling all requirements for **Stage 3: Advanced Application**.
+This project is a modular, secure, and user-friendly banking management application developed as a **Software Engineering** project at **Istanbul Esenyurt University**.
 
-## 🚀 Key Engineering Features
-The system is built with modularity and scalability in mind, utilizing advanced software design principles:
+## 🌟 Project Highlights
+The system is designed with a focus on **Object-Oriented Programming (OOP)** principles, data integrity, and a professional user experience.
 
-* **Advanced OOP Hierarchy:** Implements inheritance and polymorphism through the `Account` base class and its specialized subclasses: `SavingsAccount` and `CheckingAccount`.
-* **Custom Exception Handling:** Utilizes a domain-specific `InsufficientFundsError` to manage transaction failures gracefully without interrupting the system flow.
-* **Data Persistence (JSON):** Features a robust persistence layer where all account states and transaction histories are serialized into `bank_data.json`, ensuring data integrity across sessions.
-* **Fraud Detection Engine:** Includes an automated monitoring routine that flags high-value transactions (above 10,000 TRY) as suspicious activities.
+### 🖥️ Modern User Interface (UI)
+- Developed using the `CustomTkinter` library for a high-performance, dark-mode compatible interface.
+- Features a streamlined management panel for personnel interactions.
 
-## 📊 Algorithmic Implementations
-* **Financial Analytics:** An algorithm within the `BankSystem` class analyzes all active accounts to report the "Top 3 Performing Accounts" based on current balances.
-* **Interest Computation:** `SavingsAccount` includes a specialized method for calculating and applying interest rates to the account balance automatically.
+### 🛠️ Engineering & Architecture
+- **Immutability:** Uses `@dataclass(frozen=True)` for financial objects (`Money`) to ensure data cannot be altered unintentionally after creation.
+- **Custom Error Handling:** Implements specialized exceptions like `InsufficientFundsError` to manage banking logic errors gracefully.
+- **Persistence:** All account data is stored and managed via a local `bank_data.json` database.
 
-## 🧪 Unit Testing
-The reliability of the system is verified using the `unittest` framework. The test suite covers balance validation, interest accuracy, and withdrawal limit constraints, ensuring the code meets engineering quality standards.
-
-## 📂 Project Structure
-* `banking_modules.py`: Core logic, classes, and custom exception definitions.
-* `main.py`: Primary simulation script executing the Stage 3 lifecycle.
-* `test_banking.py`: Automated unit tests for system verification.
-* `DESIGN_DOC.md`: Detailed documentation of architectural design and OOP principles.
-
-## 🛠️ Execution
-1.  **Run Simulation:** `python main.py`
-2.  **Run Unit Tests:** `python test_banking.py`
+### 📊 Reporting & Verification (Instructor Requirements)
+- **Automated Reporting:** Includes a module to generate a system status report in `.txt` format for auditing purposes.
+- **Unit Testing:** Integrated `unittest` suite ensures that the core banking logic is verified and bug-free.
 
 ---
-**Developer:** Sinem Onar
-**Institution:** Istanbul Esenyurt University - Dept. of Software Engineering
+
+## 📂 Directory Structure
+```text
+BANKING-PROJECT/
+├── ui_main.py            # Main GUI Entry Point
+├── banking_modules.py    # Backend Logic & Class Models
+├── test_banking.py       # Unit Testing Suite
+├── bank_data.json        # Data Storage
+└── readme.md             # Project Documentation

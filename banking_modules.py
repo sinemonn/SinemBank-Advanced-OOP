@@ -6,19 +6,24 @@ from datetime import datetime
 # --- STAGE 1 & 2: Value Objects & Operator Overloading ---
 @dataclass(frozen=True)
 class Money:
+    """Value object with immutability principles."""
     amount: float
     currency: str = "TRY"
 
-    def __add__(self, other): # Operator Overloading
+    def __add__(self, other): # Stage 2: Operator Overloading
         return Money(self.amount + other.amount)
+    
+    def __sub__(self, other): # Stage 2: Operator Overloading
+        return Money(self.amount - other.amount)
 
 # --- STAGE 1: Abstraction ---
-class AbstractAccount(ABC): # Base class with Abstraction
+class AbstractAccount(ABC):
+    """Abstract base class for all account types."""
     def __init__(self, account_id, owner, balance=0.0):
         self.account_id = account_id
         self.owner = owner
         self.balance = balance
-        self.transactions = []
+        self.transaction_logs = []
 
     @abstractmethod
     def deposit(self, amount: float):
@@ -30,58 +35,56 @@ class AbstractAccount(ABC): # Base class with Abstraction
 
 # --- STAGE 3: Polymorphism (Savings vs Checking) ---
 class SavingsAccount(AbstractAccount):
+    """Subclass with interest computation logic."""
     def deposit(self, amount):
         self.balance += amount
-        self.transactions.append({"type": "Deposit", "amount": amount, "date": str(datetime.now())})
+        self.transaction_logs.append(f"Deposited: {amount} at {datetime.now()}")
 
     def withdraw(self, amount):
         if self.balance >= amount:
             self.balance -= amount
-            self.transactions.append({"type": "Withdrawal", "amount": amount, "date": str(datetime.now())})
             return True
         return False
 
-    def calculate_interest(self): # Algorithmic Requirement: Interest
+    def calculate_interest(self): # Stage 3: Interest Computation
         return self.balance * 0.05
 
 class CheckingAccount(AbstractAccount):
+    """Subclass with credit limits."""
     def deposit(self, amount):
         self.balance += amount
 
     def withdraw(self, amount):
-        # Checking accounts might have a credit limit
         limit = 500
         if (self.balance + limit) >= amount:
             self.balance -= amount
             return True
         return False
 
-# --- STAGE 2 & 3: Bank System & Data Analytics ---
+# --- STAGE 3: Advanced Application Logic ---
 class BankSystem:
     def __init__(self, data_file='bank_data.json'):
         self.data_file = data_file
         self.accounts = []
-        self.load_data()
+        self.load_persistence()
 
-    def load_data(self): # Senin eski kodundaki JSON mantığını buraya aldık
+    def load_persistence(self):
         try:
             with open(self.data_file, 'r') as f:
                 data = json.load(f)
-                # Veriyi uygun sınıflara (Savings/Checking) dönüştürerek yükle
                 for acc in data:
+                    # Defaulting to SavingsAccount for simulation
                     self.accounts.append(SavingsAccount(acc['id'], acc['owner'], acc['balance']))
-        except FileNotFoundError:
+        except (FileNotFoundError, json.JSONDecodeError):
             self.accounts = []
 
-    # --- ALGORITHMIC REQUIREMENTS ---
-    
-    def get_top_3_accounts(self): # Data Analytics: Top 3
+    def get_top_3_accounts(self): # Stage 3: Data Analytics Output
         return sorted(self.accounts, key=lambda x: x.balance, reverse=True)[:3]
 
-    def detect_fraud(self, amount): # Fraud Detection Routine
-        if amount > 10000: 
-            return "WARNING: Suspicious high-value transaction!"
-        return "Transaction Secure"
+    def detect_fraud(self, amount): # Stage 3: Fraud Detection Routine
+        if amount > 20000:
+            return "ALERT: Possible Fraudulent Activity!"
+        return "Normal"
 
-    def search_transactions(self, owner_name): # Search & Filtering
-        return [acc for acc in self.accounts if owner_name.lower() in acc.owner.lower()]
+    def search_accounts(self, name_query): # Stage 2: Search & Filter Algorithm
+        return [acc for acc in self.accounts if name_query.lower() in acc.owner.lower()]

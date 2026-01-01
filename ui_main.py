@@ -1,72 +1,48 @@
 import customtkinter as ctk
-from banking_modules import BankSystem, Money
-from datetime import datetime
+from banking_modules import BankSystem # Backend dosyasından sistemi çekiyoruz
+from tkinter import messagebox
 
-class BankApp(ctk.CTk):
+class BankManagementUI(ctk.CTk):
     def __init__(self):
         super().__init__()
-        
-        # Window Configuration
-        self.title("Esenyurt Bank - Management Panel")
-        self.geometry("500x500")
+        self.title("Esenyurt Bank - Advanced System")
+        self.geometry("600x700")
         ctk.set_appearance_mode("dark")
         
-        # Initialize Backend System
-        self.bank_system = BankSystem()
+        self.bank_engine = BankSystem()
 
-        # --- UI Elements ---
-        self.label = ctk.CTkLabel(self, text="Banking Operation Center", font=("Arial", 24, "bold"))
-        self.label.pack(pady=25)
+        # UI Elements (Buttons, Inputs, etc.)
+        self.header = ctk.CTkLabel(self, text="Banking Control Center", font=("Helvetica", 24, "bold"))
+        self.header.pack(pady=20)
 
-        # Data Entry Section
-        self.amount_entry = ctk.CTkEntry(self, placeholder_text="Enter amount (e.g. 500.0)", width=200)
-        self.amount_entry.pack(pady=10)
+        # Search
+        self.search_input = ctk.CTkEntry(self, placeholder_text="Filter by Name...")
+        self.search_input.pack(pady=10)
+        self.search_btn = ctk.CTkButton(self, text="Search", command=self.run_search)
+        self.search_btn.pack()
 
-        # Transaction Buttons
-        self.btn_deposit = ctk.CTkButton(self, text="Deposit Funds", 
-                                         command=self.deposit_funds,
-                                         fg_color="#2ecc71", hover_color="#27ae60")
-        self.btn_deposit.pack(pady=10)
+        # Analytics
+        self.analytics_btn = ctk.CTkButton(self, text="View Top 3 (Analytics)", 
+                                           fg_color="#e67e22", command=self.display_analytics)
+        self.analytics_btn.pack(pady=20)
 
-        # Reporting Section (Professor's Request)
-        self.btn_report = ctk.CTkButton(self, text="Generate System Report (TXT)", 
-                                        command=self.generate_report,
-                                        fg_color="#3498db", hover_color="#2980b9")
-        self.btn_report.pack(pady=30)
+        self.display_box = ctk.CTkTextbox(self, height=200, width=500)
+        self.display_box.pack(pady=10)
 
-        # Status Label
-        self.status_label = ctk.CTkLabel(self, text="System Ready", text_color="gray")
-        self.status_label.pack(pady=20)
+    def run_search(self):
+        query = self.search_input.get()
+        matches = self.bank_engine.search_accounts(query)
+        self.display_box.delete("1.0", "end")
+        for acc in matches:
+            self.display_box.insert("end", f"Owner: {acc.owner} | Balance: {acc.balance} TRY\n")
 
-    def deposit_funds(self):
-        """Handles the data entry and balance update."""
-        input_value = self.amount_entry.get()
-        try:
-            amount = float(input_value)
-            # Connecting to your existing BankSystem logic
-            # Assuming account_id 1 for demo purposes
-            self.status_label.configure(text=f"Successfully deposited {amount} TRY", text_color="#2ecc71")
-            self.amount_entry.delete(0, 'end')
-        except ValueError:
-            self.status_label.configure(text="Error: Please enter a valid number!", text_color="#e74c3c")
-
-    def generate_report(self):
-        """Creates a professional TXT report of the system status."""
-        try:
-            report_name = "bank_system_report.txt"
-            with open(report_name, "w", encoding="utf-8") as f:
-                f.write("=== ESENYURT BANK MANAGEMENT REPORT ===\n")
-                f.write(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-                f.write("-" * 40 + "\n")
-                f.write("System Status: Operational\n")
-                f.write("Integrity Check: Passed\n")
-                f.write("-" * 40 + "\n")
-                f.write("All transactions are logged successfully.\n")
-            
-            self.status_label.configure(text=f"Report saved as {report_name}", text_color="#3498db")
-        except Exception as e:
-            self.status_label.configure(text=f"Report Error: {str(e)}", text_color="#e74c3c")
+    def display_analytics(self):
+        top_list = self.bank_engine.get_top_3_accounts()
+        self.display_box.delete("1.0", "end")
+        self.display_box.insert("end", "--- TOP ACCOUNTS --- \n")
+        for i, acc in enumerate(top_list, 1):
+            self.display_box.insert("end", f"{i}. {acc.owner} -> {acc.balance} TRY\n")
 
 if __name__ == "__main__":
-    app = BankApp()
+    app = BankManagementUI()
     app.mainloop()

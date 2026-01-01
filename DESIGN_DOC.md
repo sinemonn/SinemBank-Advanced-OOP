@@ -1,22 +1,33 @@
-# 📄 Design Documentation: Banking & Payment System (Stage 3)
+# Design Documentation: Esenyurt Bank Management System
 
-This document details the architectural structure and software engineering principles implemented for the **Stage 3: Advanced Application** requirements of the Banking & Payment System.
+## 1. Project Overview
+This project is a modern Banking Management System developed for the Object-Oriented Programming (OOP) course. It focuses on implementing a modular, scalable, and secure architecture for handling financial transactions, account management, and data analytics.
 
-## 1. Object-Oriented Programming (OOP) Principles
-The system architecture is built upon the four pillars of OOP to ensure modularity, scalability, and maintainability:
+## 2. System Architecture & OOP Principles
+The system is built on four core OOP pillars as requested in the evaluation criteria:
 
-* **Encapsulation:** Account balances (`_balance`) and transaction histories (`_transaction_history`) are defined as protected attributes. Direct access to these data points is restricted, ensuring that balance modifications occur only through controlled `deposit` and `withdraw` methods to maintain data integrity.
-* **Inheritance:** A hierarchical structure is established where `SavingsAccount` and `CheckingAccount` subclasses inherit from the `Account` base class. This prevents code duplication while allowing specialized features for different account types.
-* **Polymorphism:** The `withdraw` method is overridden within the `CheckingAccount` class to implement specific daily withdrawal limits. This allows the same method signature to exhibit different behaviors depending on the object type.
-* **Abstraction:** Complex financial data is simplified into intuitive models through the `Money` and `Transaction` classes, hiding internal complexities from the high-level system logic.
+### A. Abstraction (Stage 1)
+- **AbstractAccount (Base Class)**: Utilizes the `abc` (Abstract Base Classes) module to define a template for all account types. It ensures that every account must implement `deposit()` and `withdraw()` methods.
 
-## 2. Algorithmic Features and Logical Layer
-Three core algorithmic functions have been implemented to add analytical value to the system:
+### B. Inheritance & Polymorphism (Stage 3)
+- **SavingsAccount**: Inherits from `AbstractAccount`. Implements specific logic for interest computation.
+- **CheckingAccount**: Inherits from `AbstractAccount`. Implements credit limit (overdraft) management logic.
+- **Polymorphism**: Both subclasses override the `withdraw` method to handle different financial rules (e.g., checking balance vs. checking credit limit).
 
-* **Interest Computation:** An automated algorithm within the `SavingsAccount` class calculates and applies periodic interest to the current balance, documenting the gain in the transaction history.
-* **Fraud Detection:** A security routine monitors withdrawals; any transaction exceeding 10,000 TRY is flagged as a "High-value transaction," triggering a system-level security alert.
-* **Data Analytics (Reporting):** The `BankSystem` utilizes a sorting algorithm to analyze all managed accounts and generate a "Top-performing Accounts" report based on balance volume.
+### C. Value Objects & Immutability (Stage 1)
+- **Money Class**: Implemented using `@dataclass(frozen=True)` to ensure immutability. This prevents accidental modification of financial values after creation, enhancing system security.
+- **Operator Overloading (Stage 2)**: The `Money` class overloads `__add__` and `__sub__` to allow intuitive arithmetic operations between currency objects.
 
-## 3. Data Management and Persistence
-* **JSON Persistence:** The system implements a data persistence layer via the `BankSystem` class, which serializes account data into `bank_data.json`. This ensures that user data and histories are preserved even after the program is terminated.
-* **Custom Exception Handling:** Beyond standard error types, a domain-specific `InsufficientFundsError` has been defined. This provides professional error feedback to the user and prevents system crashes during invalid transaction attempts.
+## 3. Algorithmic Requirements
+The system implements advanced algorithms as specified in the Stage 2 and Stage 3 requirements:
+
+1. **Transaction Search & Filtering**: A filtering algorithm allows administrators to search accounts by owner name using case-insensitive string matching.
+2. **Fraud Detection Routine**: A security layer monitors transaction amounts. High-volume transactions (e.g., > 20,000 TRY) trigger an immediate security alert in the UI.
+3. **Data Analytics Output**: A sorting algorithm identifies and displays the "Top 3 Accounts" based on total balance volume, providing business intelligence.
+4. **Interest Computation**: Automated tiered or fixed rate calculation for `SavingsAccount` types.
+
+## 4. Data Persistence
+- **JSON Integration**: The system utilizes `bank_data.json` to store account states. This ensures that data is persistent across application restarts.
+
+## 5. UI Design
+- Built with **CustomTkinter** for a modern, responsive, and professional user experience (UX).

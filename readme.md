@@ -1,4 +1,4 @@
-# Esenyurt Bank - Advanced Banking Management System 🏦
+# SinemBank - Advanced OOP Management System
 
 This project is a modular, secure, and user-friendly banking management application developed as a **Software Engineering** project at **Istanbul Esenyurt University**.
 

@@ -1,4 +1,4 @@
-# Design Documentation: Esenyurt Bank Management System
+# Design Documentation: SinemBank Management System
 
 ## 1. Project Overview
 This project is a modern Banking Management System developed for the Object-Oriented Programming (OOP) course. It focuses on implementing a modular, scalable, and secure architecture for handling financial transactions, account management, and data analytics.

@@ -1,23 +1,32 @@
 import unittest
-from banking_modules import Account, SavingsAccount, InsufficientFundsError
+from banking_modules import SavingsAccount, CheckingAccount, Customer, InsufficientFundsError
 
-class TestBankingSystem(unittest.TestCase):
+class TestSinemBank(unittest.TestCase):
     def setUp(self):
-        self.checking = Account("Test Checker")
-        self.savings = SavingsAccount("Test Saver", interest_rate=0.10)
+        self.cust = Customer("Sinem", 2422)
+        self.savings = SavingsAccount(1, self.cust, 1000.0)
+        self.checking = CheckingAccount(2, self.cust, 500.0, 200.0)
 
-    def test_savings_interest(self):
-        """Verifies the accuracy of the interest computation algorithm."""
-        self.savings.deposit(1000)
-        # Note: In your current architecture, interest logic belongs here
-        interest = self.savings.calculate_interest()
-        self.assertEqual(interest.amount, 100.0)
+    def test_savings_deposit(self):
+        self.savings.deposit(500)
+        self.assertEqual(self.savings.balance, 1500.0)
 
-    def test_insufficient_funds_error(self):
-        """Validates that Custom Exception is raised for over-withdrawals."""
-        self.checking.deposit(100)
-        # Assuming your withdraw method raises this error
-        # Add your custom error check here based on banking_modules logic
+    def test_savings_withdraw_success(self):
+        self.savings.withdraw(400)
+        self.assertEqual(self.savings.balance, 600.0)
+
+    def test_savings_withdraw_fail(self):
+        with self.assertRaises(InsufficientFundsError):
+            self.savings.withdraw(2000)
+
+    def test_checking_overdraft_success(self):
+        # 500 bakiye + 200 limit = 700 çekebilir
+        self.assertTrue(self.checking.withdraw(650))
+        self.assertEqual(self.checking.balance, -150.0)
+
+    def test_checking_overdraft_limit_fail(self):
+        with self.assertRaises(InsufficientFundsError):
+            self.checking.withdraw(800)
 
 if __name__ == '__main__':
     unittest.main()

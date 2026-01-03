@@ -66,10 +66,11 @@ class BankManagementUI(ctk.CTk):
         self.display_box.delete("1.0", "end")
         if matches:
             for acc in matches:
-                self.display_box.insert("end", f"ID: {acc.account_id} | Owner: {acc.owner} | Balance: {acc.balance} TRY\n")
+                # DİKKAT: acc._owner bir Customer nesnesi olduğu için .name ekledik
+                self.display_box.insert("end", f"ID: {acc._account_id} | Owner: {acc._owner.name} | Balance: {acc.balance} TRY\n")
         else:
             self.display_box.insert("end", "Status: No matching account found.")
-
+    
     def process_deposit(self):
         try:
             val = float(self.amount_input.get())
@@ -86,7 +87,8 @@ class BankManagementUI(ctk.CTk):
         self.display_box.delete("1.0", "end")
         self.display_box.insert("end", "--- SINEMBANK ANALYTICS: TOP 3 ACCOUNTS ---\n\n")
         for i, acc in enumerate(top_list, 1):
-            self.display_box.insert("end", f"{i}. {acc.owner} -> {acc.balance} TRY\n")
+            # DİKKAT: acc._owner.name ve acc.balance (property) kullanıldı
+            self.display_box.insert("end", f"{i}. {acc._owner.name} -> {acc.balance} TRY\n") 
 
 if __name__ == "__main__":
     app = BankManagementUI()

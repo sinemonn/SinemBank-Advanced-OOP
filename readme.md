@@ -1,4 +1,4 @@
-SinemBank - Advanced Banking & Payment System 🏦💖
+# **SinemBank - Advanced Banking & Payment System 🏦💖**
 SinemBank is a high-security banking management simulation developed using Object-Oriented Programming (OOP) principles in Python. This project was created as the first assignment for the Advanced Object-Oriented Programming course at Istanbul Esenyurt University, Faculty of Engineering and Architecture.
 
 🌟 Project Highlights

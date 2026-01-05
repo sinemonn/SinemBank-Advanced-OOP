@@ -1,55 +1,57 @@
-# SinemBank - Advanced OOP Management System
+# SinemBank - Advanced Object-Oriented Management System 🏦✨
 
 ## 1. Project Overview
-**SinemBank** is a high-performance bank management engine developed as a final project for the Object-Oriented Programming (OOP) course. The system focuses on modular architecture, secure financial transactions, and real-time data analytics.
+**SinemBank** is a comprehensive financial management engine developed for the Object-Oriented Programming (OOP) course. It integrates a **Modern Desktop Dashboard** for daily operations and a **Web Reporting Portal** for high-level analytics.
 
-## 2. Technical Features & OOP Implementation
-The project is built on three major stages, strictly following the course evaluation criteria:
+## 2. Visual Architecture & Design
+The system architecture follows a strict class hierarchy to ensure scalability and security.
 
-* **Abstraction (Stage 1):** Utilizes an `AbstractAccount` base class to enforce a consistent blueprint for all financial products.
-* **Inheritance & Polymorphism (Stage 3):** Features specialized `SavingsAccount` and `CheckingAccount` classes with unique withdrawal and interest computation logic.
-* **Operator Overloading (Stage 2):** Implements a `Money` value object with overloaded `__add__` and `__sub__` operators for intuitive arithmetic.
-* **Advanced Algorithms:** Includes a **Fraud Detection Routine** (monitoring high-volume transfers) and **Data Analytics** (sorting top accounts by balance).
+### 📊 Class Diagram (UML)
+Below is the visual blueprint of the system, illustrating how different accounts and the core system interact:
 
-## 3. Technology Stack
-* **Language:** Python 3.x
-* **UI Framework:** CustomTkinter (Modern Dark Mode UI)
-* **Data Persistence:** JSON-based storage (`bank_data.json`)
+![SinemBank UML Diagram](uml_diagram.png)
 
-## 4. Getting Started
-To run the application locally:
+## 3. Core Technical Implementation
+The project is structured across three developmental stages (S1, S2, S3), implementing key OOP pillars:
 
-1.  Clone the repository:
-    ```bash
-    git clone [https://github.com/sinemonn/SinemBank-Advanced-OOP.git](https://github.com/sinemonn/SinemBank-Advanced-OOP.git)
-    ```
-2.  Install dependencies:
-    ```bash
-    pip install customtkinter
-    ```
-3.  Launch the UI:
-    ```bash
-    python ui_main.py
-    ```
+* **Abstraction (Stage 1):** Uses an `AbstractAccount` base class to enforce a consistent template for all account types.
+* **Inheritance & Polymorphism (Stage 3):** Specialized `SavingsAccount` and `CheckingAccount` classes implement unique business logic for interest and withdrawals.
+* **Encapsulation:** Sensitive data such as `_balance` and `_account_id` are protected, accessible only through secure properties.
+* **Operator Overloading (Stage 2):** The `Money` class overloads `__add__` and `__sub__` for intuitive currency calculations.
 
-## 5. Project Structure
-* `ui_main.py`: Modern user interface and event handling.
-* `banking_modules.py`: Backend logic, OOP hierarchies, and algorithms.
-* `DESIGN_DOC.md`: Detailed system architecture documentation.
-* `bank_data.json`: Persistent storage for account information.
+## 4. Advanced Algorithmic Features
+* **Fraud Detection Routine:** Real-time monitoring for high-volume transactions (e.g., > 20,000 TRY) with UI-based security alerts.
+* **Data Analytics:** Custom sorting algorithms to identify and report the "Top 3 Accounts" by total balance.
+* **Search & Filtering:** Case-insensitive search engine to filter accounts by customer names.
 
----
-**Developer:** Sinem Onar  
-**University:** Istanbul Esenyurt University  
-**Department:** Software Engineering
+## 5. Technology Stack
+* **Core Logic:** Python 3.14 (OOP Focused)
+* **Desktop UI:** CustomTkinter (Modern Dark/Light Themes)
+* **Web Portal:** Flask Web Server (RESTful approach for reporting)
+* **Database:** JSON Data Persistence for local storage (`banka_verileri.json`)
+
+## 6. 🚀 Getting Started
+To launch the SinemBank ecosystem, use the following terminal commands:
+
+1. **Launch Desktop Dashboard:**
+   `python ui_main.py`
+2. **Launch Web Reporting Portal:**
+   `python web_app.py` (Access via http://127.0.0.1:5000)
+3. **Execute Automated Testing:**
+   `python test_bankacılık.py`
 
 ---
 
-## 📂 Directory Structure
+## 📂 Project Directory Structure (Detailed)
 ```text
 BANKING-PROJECT/
-├── ui_main.py            # Main GUI Entry Point
-├── banking_modules.py    # Backend Logic & Class Models
-├── test_banking.py       # Unit Testing Suite
-├── bank_data.json        # Data Storage
-└── readme.md             # Project Documentation
+├── ui_main.py                # Main Entry Point: Desktop Graphical User Interface
+├── web_app.py                # Web Portal: Flask-based reporting server
+├── bankacılık_modülleri.py    # Core Logic: All OOP Classes and Business Logic
+├── ana.py                    # Script: Primary execution logic for back-end
+├── modeller.py               # Data Models: Definitions for data structures
+├── TASARIM_BELGESI.md        # Documentation: Deep dive into architectural design
+├── uml_diagram.png           # Visual Design: The class relationship diagram
+├── banka_verileri.json       # Database: Persistent storage for account records
+├── banka_sistem_raporu.txt   # Reports: Auto-generated system audit logs
+└── readme.md                 # Documentation: This overview file

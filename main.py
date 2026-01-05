@@ -1,50 +1,47 @@
-from banking_modules import BankSystem, Account, SavingsAccount, Customer
+from banking_modules import (
+    BankSystem,
+    SavingsAccount,
+    CheckingAccount,
+    Customer,
+    Money,
+    InsufficientFundsError
+)
 
 def run_simulation():
-    # 1. Initialize the Bank System
     system = BankSystem()
     print("--- 🏦 Banking System Simulation Started ---")
 
-    # 2. Define Customers
-    sinem = Customer("Sinem Onar", "12345678901")
-    coskun = Customer("Coskun Sahin", "98765432109")
+    # Customers
+    sinem = Customer("Sinem Onar", 1)
+    coskun = Customer("Coskun Sahin", 2)
 
-    # 3. Create and Link Accounts
-    acc1 = Account("TR-CHECKING-01")
-    acc2 = SavingsAccount("TR-SAVINGS-02", interest_rate=0.15)
-    
-    sinem.add_account(acc1)
-    sinem.add_account(acc2)
+    # Accounts
+    acc1 = CheckingAccount(101, sinem, Money(2000))
+    acc2 = SavingsAccount(102, sinem, Money(5000))
 
-    # 4. Perform Transactions
-    print("\n--- 💸 Processing Transactions ---")
-    acc1.deposit(1000, "Initial Deposit")
-    acc2.deposit(5000, "Savings Startup")
-    
-    # NEW: Demonstrating Interest Computation Algorithm (Stage 3 Requirement)
-    acc2.apply_interest() # Algorithmic check for interest
-
-    # 5. Triggering Fraud Detection Algorithm
-    print("\n--- 🛡️ Security Check: Fraud Detection ---")
-    try:
-        # High-value transaction to trigger alert
-        acc1.withdraw(12000, "Suspicious Luxury Purchase") 
-    except Exception as e:
-        print(f"SECURITY ALERT: {e}")
-
-    # 6. Data Analytics & Reporting
-    print("\n--- 📊 DATA ANALYTICS: Top Performing Accounts ---")
     system.accounts.extend([acc1, acc2])
-    top_accounts = system.get_top_performing_accounts(3) # Financial analytics
-    
-    for rank, acc in enumerate(top_accounts, 1):
-        print(f"{rank}. {acc}")
 
-    # 7. Save State to JSON (Persistence)
-    system.save_data() # Saving to bank_data.json
-    print("\n✅ Simulation Complete. All data persistent in JSON.")
+    # Transactions
+    print("\n--- 💸 Processing Transactions ---")
+    acc1.deposit(Money(1000))
+    acc2.deposit(Money(3000))
+
+    # Interest (Stage 3)
+    acc2.apply_interest()
+
+    # Fraud Detection
+    print("\n--- 🛡️ Fraud Detection ---")
+    alert = system.detect_fraud(acc1, Money(25000))
+    print("Fraud check result:", alert)
+
+    # Analytics
+    print("\n--- 📊 Top Accounts ---")
+    for i, acc in enumerate(system.top_3_accounts(), 1):
+        print(f"{i}. Account ID: {acc._account_id}, Balance: {acc.balance}")
+
+    # Persistence
+    system.save_data()
+    print("\n✅ Simulation completed successfully.")
 
 if __name__ == "__main__":
     run_simulation()
-
-

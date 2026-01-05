@@ -2,27 +2,31 @@
     {
         "id": "1001",
         "owner": "Sinem",
-        "balance": 25000.00
+        "balance": 25000.0
     },
     {
         "id": "1002",
-        "owner": "Coşkun Hoca",
-        "balance": 50000.00
+        "owner": "Co\u00c5\u0178kun Hoca",
+        "balance": 50000.0
     },
     {
         "id": "1003",
-        "owner": "Ömer",
-        "balance": 12500.50
+        "owner": "\u00c3\u2013mer",
+        "balance": 12500.5
     },
     {
         "id": "1004",
         "owner": "Aysel",
-        "balance": 8400.00
+        "balance": 8400.0
     },
     {
         "id": "1005",
         "owner": "Zeynep Damla",
         "balance": 18200.75
+    },
+    {
+        "id": 1005,
+        "owner": "sinem",
+        "balance": 2000.0
     }
 ]
-  

@@ -5,7 +5,7 @@ This project is a modern Banking Management System developed for the Object-Orie
 
 ## 2. System Architecture & OOP Principles
 The system is built on four core OOP pillars as requested in the evaluation criteria:
-
+![SinemBank UML Diagram](uml_diagram.png)
 ### A. Abstraction (Stage 1)
 - **AbstractAccount (Base Class)**: Utilizes the `abc` (Abstract Base Classes) module to define a template for all account types. It ensures that every account must implement `deposit()` and `withdraw()` methods.
 
